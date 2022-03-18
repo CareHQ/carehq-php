@@ -1,5 +1,5 @@
 {
-  "name": "CareHQ/carehq-php",
+  "name": "carehq/carehq-php",
   "description": "CareHQ API Client for PHP.",
   "keywords": [
     "carehq",
