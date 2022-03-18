@@ -9,7 +9,7 @@ namespace CareHQ\Exception;
 class APIException extends \Exception
 {
 
-    private $doc_str = 'An error occurred while processing an API the request.';
+    public $doc_str = 'An error occurred while processing an API the request.';
 
     // The status code associated with the error
     public $status_code;
@@ -39,19 +39,21 @@ class APIException extends \Exception
 
         if ($this->arg_errors) {
             array_push(
-                'Argument errors:\n- ' . join(
-                    '\n- ',
+                $parts,
+                'Argument errors:' . PHP_EOL . '- ' . join(
+                    PHP_EOL . '- ',
                     array_map(
-                        function ($arg, $errors) {
-                            return $arg . ': ' . join(' ', $errors);
+                        function ($key, $value) {
+                            return $key . ': ' . join(' ', $value);
                         },
+                        array_keys($this->arg_errors),
                         $this->arg_errors
                     )
                 )
             );
         }
 
-        return join('\n---\n', $parts);
+        return join(PHP_EOL . '---' . PHP_EOL, $parts);
     }
 
     public static function get_class_by_status_code(

@@ -64,7 +64,7 @@ class APIClient
                 $params,
                 function ($v) { return !is_null($v); }
             );
-            $params = array_map('CareHQ\_ensure_string', $params);
+            $params = array_map('CareHQ\ensure_string', $params);
         }
 
         if ($data) {
@@ -72,7 +72,7 @@ class APIClient
                 $data,
                 function ($v) { return !is_null($v); }
             );
-            $data = array_map('CareHQ\_ensure_string', $data);
+            $data = array_map('CareHQ\ensure_string', $data);
         }
 
         // Build the signature
@@ -84,10 +84,10 @@ class APIClient
         }
 
         $signature_values = [];
-        foreach ($params as $key => $value) {
+        foreach ($signature_data as $key => $value) {
             array_push($signature_values, $key);
             if (is_array($value)) {
-                array_merge($signature_values, $value);
+                $signature_values = array_merge($signature_values, $value);
             } else {
                 array_push($signature_values, $value);
             }
@@ -109,14 +109,15 @@ class APIClient
         // Make the request
         $url = $this->api_base_url . '/v1/' . $path;
         if ($params) {
-            $url = $url . '?' . http_build_query($params);
+            $url = $url . '?' . build_query($params);
         }
 
-        $r = \WpOrg\Requests\Requests::{strtolower($method)}(
+        $r = \WpOrg\Requests\Requests::request(
             $url,
             $headers,
-            $data ? $data : [],
-            $timeout=$this->timeout
+            $data ? build_query($data) : NULL,
+            $type=strtoupper($method),
+            $options=['timeout'=>$this->timeout]
         );
 
         // Update the rate limit
@@ -147,18 +148,37 @@ class APIClient
 
         throw new $error_cls(
             $r->status_code,
-            in_array('hint', $error) ? $error['hint'] : NULL,
-            in_array('arg_errors', $error) ? $error['arg_errors'] : NULL
+            array_key_exists('hint', $error) ? $error['hint'] : NULL,
+            array_key_exists('arg_errors', $error) ? $error['arg_errors'] : NULL
         );
     }
 }
 
 
 /**
+ * Alternative to `http_build_query` that takes the approach id=1&id=2 to
+ * handle array submissions.
+ */
+function build_query($params) {
+    $query = [];
+    foreach($params as $name => $value) {
+        if (is_array($value)) {
+            foreach ($value as $v) {
+                array_push($query, urlencode($name) . '=' . urlencode($v));
+            }
+        } else {
+            array_push($query, urlencode($name) . '=' . urlencode($value));
+        }
+    }
+    return join('&', $query);
+};
+
+
+/**
  * Ensure values that will be convered to a form-encoded value is a string
  * (or list of strings).
  */
-function _ensure_string($v) {
+function ensure_string($v) {
 
     if (is_array($v)) {
         return array_map('strval', $v);
