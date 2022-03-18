@@ -50,7 +50,13 @@ $api_client = new CareHQ\APIClient(
 $users = $api_client->request(
     'get',
     'users',
-    ['filters-q' => ['lyra']]
+    [
+        'attributes' => [
+            'first_name',
+            'last_name'
+        ],
+        'filters-q' => 'ant'
+    ]
 );
 
 ```
