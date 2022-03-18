@@ -1,0 +1,25 @@
+{
+  "name": "CareHQ/carehq-php",
+  "description": "CareHQ API Client for PHP.",
+  "keywords": [
+    "carehq",
+    "api"
+  ],
+  "homepage": "https://carehq.co.uk/",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "CRMHQ and contributors",
+      "homepage": "https://github.com/CareHQ/carehq-php/graphs/contributors"
+    }
+  ],
+  "require": {
+    "php": ">=5.6.0",
+    "rmccue/requests": "2.0.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "CareHQ\\": "lib/"
+    }
+  }
+}
