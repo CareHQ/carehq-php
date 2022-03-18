@@ -9,9 +9,7 @@ namespace CareHQ\Exception;
 class APIException extends \Exception
 {
 
-    public static $doc_str =
-        'An error occurred while processing an API the ' .
-        'request.';
+    private $doc_str = 'An error occurred while processing an API the request.';
 
     // The status code associated with the error
     public $status_code;
@@ -32,7 +30,8 @@ class APIException extends \Exception
     }
 
     public function __toString() {
-        $parts = ['[' . strval($this->status_code) . '] ' . self::$doc_str];
+
+        $parts = ['[' . strval($this->status_code) . '] ' . $this->doc_str];
 
         if ($this->hint) {
             array_push($parts, 'Hint: ' . $this->hint);
@@ -60,20 +59,18 @@ class APIException extends \Exception
         $default=NULL
     ) {
         $class_map = [
-            400=>InvalidRequest::class,
-            401=>Unauthorized::class,
-            403=>Forbidden::class,
-            405=>Forbidden::class,
-            404=>NotFound::class,
-            429=>RateLimitExceeded::class
+            400 => InvalidRequest::class,
+            401 => Unauthorized::class,
+            403 => Forbidden::class,
+            405 => Forbidden::class,
+            404 => NotFound::class,
+            429 => RateLimitExceeded::class
         ];
 
-        return in_array($error_type, $class_map)
-            ? $class_map[$error_type]
-            : $default ? $default : APIException::class;
+        if (array_key_exists($error_type, $class_map)) {
+            return $class_map[$error_type];
+        }
+
+        return $default ? $default : APIException::class;
     }
 }
-
-
-
-
