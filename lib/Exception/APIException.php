@@ -75,49 +75,5 @@ class APIException extends \Exception
 }
 
 
-class Forbidden extends APIException
-{
-
-    public static $doc_str =
-        'The request is not not allowed, most likely the HTTP method used ' .
-        'to call the API endpoint is incorrect or the API key (via its ' .
-        'associated account) does not have permission to call the endpoint ' .
-        'and/or perform the action.';
-
-}
 
 
-class InvalidRequest extends APIException
-{
-
-    public static $doc_str =
-        'Not a valid request, most likely a missing or invalid parameter.';
-
-}
-
-
-class NotFound extends APIException
-{
-
-    public static $doc_str =
-        'The endpoint you are calling or the document you referenced ' .
-        'doesn\'t exist.';
-
-}
-
-
-class RateLimitExceeded extends APIException
-{
-
-    public static $doc_str =
-        'You have exceeded the number of API requests allowed per second.';
-
-}
-
-
-class Unauthorized extends APIException
-{
-
-    public static $doc_str = 'The API credentials provided are not valid.';
-
-}
