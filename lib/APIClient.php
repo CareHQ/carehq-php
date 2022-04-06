@@ -121,7 +121,7 @@ class APIClient
         );
 
         // Update the rate limit
-        if (array_key_exists('X-CareHQ-RateLimit-Limit', $r->headers)) {
+        if (isset('X-CareHQ-RateLimit-Limit', $r->headers)) {
             $this->rate_limit
                 = intval($r->headers['X-CareHQ-RateLimit-Limit']);
             $this->rate_limit_reset
@@ -148,8 +148,8 @@ class APIClient
 
         throw new $error_cls(
             $r->status_code,
-            array_key_exists('hint', $error) ? $error['hint'] : NULL,
-            array_key_exists('arg_errors', $error) ? $error['arg_errors'] : NULL
+            isset('hint', $error) ? $error['hint'] : NULL,
+            isset('arg_errors', $error) ? $error['arg_errors'] : NULL
         );
     }
 }
