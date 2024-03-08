@@ -15,7 +15,7 @@
   ],
   "require": {
     "php": ">=5.6.0",
-    "rmccue/requests": "2.0.1",
+    "rmccue/requests": "2.0.10",
     "ext-curl": "*",
     "ext-json": "*"
   },
