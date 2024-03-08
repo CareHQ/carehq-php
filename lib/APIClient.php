@@ -121,7 +121,6 @@ class APIClient
         );
 
         // Update the rate limit
-        $headers = $r->headers
         if (isset($r->headers['X-CareHQ-RateLimit-Limit'])) {
             $this->rate_limit
                 = intval($r->headers['X-CareHQ-RateLimit-Limit']);
