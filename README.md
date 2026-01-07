@@ -32,7 +32,7 @@ require_once('/path/to/carehq-php/init.php');
 ## Requirements
 
 - PHP 5.6.0+
-
+- [rmccue/requests aka WpOrg\Requests](https://github.com/WordPress/Requests)
 
 # Usage
 
@@ -60,3 +60,7 @@ $users = $api_client->request(
 );
 
 ```
+
+# Changelog
+
+- 2025-01-07: Updated to use the new 'CareHQ-Signature-Version 2.0' hashing mechanism (SHA256 with a nonce), and bring more in line with the [Python version](https://github.com/CareHQ/carehq-python).

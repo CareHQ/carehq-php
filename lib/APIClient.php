@@ -75,34 +75,37 @@ class APIClient
             $data = array_map('CareHQ\ensure_string', $data);
         }
 
-        // Build the signature
-        $signature_data = [];
+        // Build the signature (v2): timestamp, nonce, method, path, canonical params
+        $timestamp = strval(intval(time()));
+        $nonce = generate_nonce();
+
+        $canonical_source = '';
         if ($params) {
-            $signature_data = $params;
+            $canonical_source = $params;
         } elseif ($data) {
-            $signature_data = $data;
+            $canonical_source = $data;
         }
 
-        $signature_values = [];
-        foreach ($signature_data as $key => $value) {
-            array_push($signature_values, $key);
-            if (is_array($value)) {
-                $signature_values = array_merge($signature_values, $value);
-            } else {
-                array_push($signature_values, $value);
-            }
-        }
-        $signature_body = join('', $signature_values);
+        $canonical_body = build_canonical_params_str($canonical_source);
 
-        $timestamp = strval(microtime(true));
-        $signature = sha1($timestamp . $signature_body . $this->api_secret);
+        $string_to_sign = implode("\n", [
+            $timestamp,
+            $nonce,
+            strtoupper($method),
+            '/v1/' . $path,
+            $canonical_body
+        ]);
+
+        $signature = compute_signature($this->api_secret, $string_to_sign);
 
         // Build the headers
         $headers = [
             'Accept' => 'application/json',
             'X-CareHQ-AccountId' => $this->account_id,
             'X-CareHQ-APIKey' => $this->api_key,
+            'X-CareHQ-Nonce' => $nonce,
             'X-CareHQ-Signature' => $signature,
+            'X-CareHQ-Signature-Version' => '2.0',
             'X-CareHQ-Timestamp' => $timestamp
         ];
 
@@ -175,7 +178,7 @@ function build_query($params) {
 
 
 /**
- * Ensure values that will be convered to a form-encoded value is a string
+ * Ensure values that will be converted to a form-encoded value is a string
  * (or list of strings).
  */
 function ensure_string($v) {
@@ -186,3 +189,46 @@ function ensure_string($v) {
 
     return strval($v);
 };
+
+
+/**
+ * Build a canonical string of params used for signing.
+ * Sort keys, sort values for each key, and join as "key=value" lines.
+ */
+function build_canonical_params_str($params) {
+    if (!$params) {
+        return '';
+    }
+
+    $parts = [];
+
+    $keys = array_keys($params);
+    sort($keys, SORT_STRING);
+
+    foreach ($keys as $key) {
+        $values = $params[$key];
+
+        if (!is_array($values)) {
+            $values = [$values];
+        }
+
+        // Normalize values to strings
+        $values = array_map('strval', $values);
+        sort($values, SORT_STRING);
+
+        foreach ($values as $v) {
+            $parts[] = $key . '=' . $v;
+        }
+    }
+
+    return join("\n", $parts);
+}
+
+function compute_signature($secret, $msg) {
+    $signature = hash_hmac('sha256', $msg, $secret);
+    return $signature;
+}
+
+function generate_nonce($length = 16) {
+    return rtrim(strtr(base64_encode(random_bytes($length)), '+/', '-_'), '=');
+}
