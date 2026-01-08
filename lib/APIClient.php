@@ -79,12 +79,7 @@ class APIClient
         $timestamp = strval(intval(time()));
         $nonce = generate_nonce();
 
-        $canonical_source = '';
-        if ($params) {
-            $canonical_source = $params;
-        } elseif ($data) {
-            $canonical_source = $data;
-        }
+        $canonical_source = $method=="GET" ? $params : $data;
 
         $canonical_body = build_canonical_params_str($canonical_source);
 
