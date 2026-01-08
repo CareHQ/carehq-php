@@ -48,7 +48,7 @@ class APIClient
         $this->account_id = $account_id;
         $this->api_key = $api_key;
         $this->api_secret = $api_secret;
-        $this->api_base_url = $api_base_url;
+        $this->api_base_url = rtrim($api_base_url, '/');
         $this->timeout = $timeout;
     }
 
@@ -82,6 +82,9 @@ class APIClient
         $canonical_source = $method=="GET" ? $params : $data;
 
         $canonical_body = build_canonical_params_str($canonical_source);
+
+        // Ensure path does not have leading slash
+        $path = ltrim($path, '/');  
 
         $string_to_sign = implode("\n", [
             $timestamp,
